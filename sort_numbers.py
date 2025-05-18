@@ -1,11 +1,25 @@
 #!/usr/bin/env python3
 
 import sys
+import os
 
 def get_numbers():
-    # If there are command line arguments, use those
+    # If there are command line arguments, check if the first is a file
     if len(sys.argv) > 1:
-        return [float(arg) for arg in sys.argv[1:]]
+        first_arg = sys.argv[1]
+        if os.path.isfile(first_arg):
+            try:
+                with open(first_arg, 'r') as f:
+                    return [float(line.strip()) for line in f if line.strip()]
+            except Exception as e:
+                print(f"Error: Could not read file '{first_arg}': {e}")
+                sys.exit(1)
+        else:
+            try:
+                return [float(arg) for arg in sys.argv[1:]]
+            except ValueError:
+                print("Error: Invalid number in arguments.")
+                sys.exit(1)
     
     # Otherwise, read from stdin
     try:
@@ -16,11 +30,11 @@ def get_numbers():
 
 def main():
     try:
-        # Get numbers from either command line args or stdin
+        # Get numbers from either command line args, file, or stdin
         numbers = get_numbers()
         
         if not numbers:
-            print("Error: No numbers provided. Please provide numbers as arguments or through stdin.")
+            print("Error: No numbers provided. Please provide numbers as arguments, a file, or through stdin.")
             sys.exit(1)
         
         # Sort the numbers
