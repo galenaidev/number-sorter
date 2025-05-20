@@ -1,2 +1,4 @@
 # This application uses only Python standard library
 # No external dependencies required
+
+pytest==8.2.2
