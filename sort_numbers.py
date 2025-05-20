@@ -1,26 +1,46 @@
 #!/usr/bin/env python3
 
 import sys
+import argparse
 
-def get_numbers():
-    # If there are command line arguments, use those
-    if len(sys.argv) > 1:
-        return [float(arg) for arg in sys.argv[1:]]
+def get_numbers(args):
+    # If a file is provided, read numbers from it
+    if args.file:
+        try:
+            with open(args.file, 'r') as f:
+                return [float(line.strip()) for line in f if line.strip()]
+        except FileNotFoundError:
+            print(f"Error: File not found: {args.file}")
+            sys.exit(1)
+        except ValueError:
+            print(f"Error: Invalid content in file: {args.file}. Ensure each line contains a single number.")
+            sys.exit(1)
+    # If there are command line arguments (numbers directly), use those
+    elif args.numbers:
+        return [float(arg) for arg in args.numbers]
     
     # Otherwise, read from stdin
     try:
         input_line = sys.stdin.readline().strip()
+        if not input_line:
+            return []
         return [float(num) for num in input_line.split()]
     except EOFError:
         return []
 
 def main():
+    parser = argparse.ArgumentParser(description="Sort numbers from a file, command line arguments, or stdin.")
+    parser.add_argument('numbers', nargs='*', help="Numbers to sort (if not using -f or stdin).")
+    parser.add_argument('-f', '--file', help="Path to a file containing numbers, one per line.")
+    
+    args = parser.parse_args()
+
     try:
-        # Get numbers from either command line args or stdin
-        numbers = get_numbers()
+        # Get numbers based on parsed arguments
+        numbers = get_numbers(args)
         
         if not numbers:
-            print("Error: No numbers provided. Please provide numbers as arguments or through stdin.")
+            print("Error: No numbers provided. Please provide numbers via file, arguments, or stdin.")
             sys.exit(1)
         
         # Sort the numbers
